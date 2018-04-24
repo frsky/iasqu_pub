@@ -1,0 +1,1420 @@
+swagger: '2.0'
+info:
+  description: MVP API definition for iasqu
+  version: 0.7.1
+  title: iasqu API
+  contact:
+    name: Frank Sikernitsky
+    email: frank@iasqu.com
+host: 'live.iasqu.com:10010'
+basePath: /apiv1
+tags:
+  - name: masters
+    description: Master customer streams
+  - name: collections
+    description: Groups of question feeds
+  - name: questions
+    description: Questions with answer and layout data
+  - name: responses
+    description: User responses to Questions
+  - name: layouts
+    description: Question layouts
+  - name: triggers
+    description: Question triggers
+  - name: notes
+    description: Namespace-wide notes
+  - name: tags
+    description: Namespace-wide tags
+  - name: stats
+    description: Checking what it does
+schemes:
+  - http
+paths:
+  /masters:
+    get:
+      tags:
+        - masters
+      summary: Customer-level records
+      description: Get master channel information
+      operationId: getMasters
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/masters'
+      x-swagger-router-controller: Masters
+    post:
+      tags:
+        - masters
+      summary: Create new master channel
+      description: Create new master channel
+      operationId: postMaster
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: created_by
+          in: formData
+          description: User ID of creator
+          required: true
+          type: number
+        - name: master_name
+          in: formData
+          description: Master record title
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: Master record details
+          required: true
+          type: string
+        - name: is_test
+          in: formData
+          description: Is this a test Master?
+          required: true
+          type: number
+      responses:
+        '201':
+          description: Master created.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/newid'
+      x-swagger-router-controller: Masters
+  '/masters/{master_id}':
+    get:
+      tags:
+        - masters
+      summary: Get master channel info for a particular ID
+      description: Get master channel information
+      operationId: getMasterByID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: master_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/masters'
+      x-swagger-router-controller: Masters
+    put:
+      tags:
+        - masters
+      summary: Update Master
+      description: Update Master
+      operationId: putMaster
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: master_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/masters'
+      responses:
+        '201':
+          description: Master updated.
+      x-swagger-router-controller: Masters
+    delete:
+      tags:
+        - masters
+      summary: Delete a master
+      description: Delete master
+      operationId: delMaster
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: master_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Master Deleted.
+      x-swagger-router-controller: Masters
+  '/masters/{master_id}/collections':
+    get:
+      tags:
+        - masters
+      summary: Get all collections for a master account
+      description: Get all collections for given Master account.
+      operationId: getCollectionsFromMaster
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: master_id
+          in: path
+          required: true
+          type: number
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/collections'
+      x-swagger-router-controller: Masters
+    post:
+      tags:
+        - masters
+      summary: Create new collection for a master account
+      description: Create Collection
+      operationId: postCollection
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: master_id
+          in: path
+          required: true
+          type: string
+        - name: created_by
+          in: formData
+          required: true
+          type: number
+        - name: collection_name
+          in: formData
+          required: true
+          type: string
+        - name: description
+          in: formData
+          required: true
+          type: string
+        - name: is_test
+          in: formData
+          required: true
+          type: number
+      responses:
+        '201':
+          description: Collection created.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/newid'
+      x-swagger-router-controller: Masters
+  '/collections/{collection_id}':
+    get:
+      tags:
+        - collections
+      summary: Get information for a specific collection.
+      description: Get collection information.
+      operationId: getCollectionFromID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/collections'
+      x-swagger-router-controller: Collections
+    put:
+      tags:
+        - collections
+      summary: Update a specific collection.
+      description: Update Collection
+      operationId: putCollection
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/collections'
+      responses:
+        '201':
+          description: Collection updated.
+      x-swagger-router-controller: Collections
+    delete:
+      tags:
+        - collections
+      summary: Delete a collection
+      description: Delete collection
+      operationId: delCollection
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Collection Deleted.
+      x-swagger-router-controller: Collections
+  '/collections/{collection_id}/golive':
+    post:
+      tags:
+        - collections
+      summary: Make question golive
+      description: 'Post Primary Question '
+      operationId: postLiveQuestion
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+        - in: formData
+          name: question_id
+          required: false
+          type: number
+      responses:
+        '201':
+          description: Question made Live.
+      x-swagger-router-controller: Collections
+  '/collections/{collection_id}/nolive':
+    post:
+      tags:
+        - collections
+      summary: Sunset a live question
+      description: 'Post Primary Question '
+      operationId: postUnLiveQuestion
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+        - in: formData
+          name: question_id
+          required: false
+          type: number
+      responses:
+        '201':
+          description: Question made inert.
+      x-swagger-router-controller: Collections
+  '/collections/{collection_id}/questions':
+    get:
+      tags:
+        - collections
+      summary: Get all questions in a collection
+      description: 'Get all questions in a collection by collection_id, ordered by sequence descending.'
+      operationId: getQuestionsFromCollection
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: number
+        - name: primary
+          in: query
+          required: false
+          type: string
+          description: 'Filter parameter, ''exclude'' returns collection without primary, ''only'' returns only the primary question.'
+        - name: test
+          in: query
+          required: false
+          type: string
+          description: 'Filter parameter, ''include'' returns collection with test items.'
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/questions'
+      x-swagger-router-controller: Collections
+    post:
+      tags:
+        - collections
+      summary: Create a question
+      description: Create Question
+      operationId: postQuestion
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+        - in: formData
+          name: question_type
+          required: true
+          type: number
+        - in: formData
+          name: question_body
+          required: true
+          type: string
+        - in: formData
+          name: created_by
+          required: true
+          type: number
+        - in: formData
+          name: duration
+          required: true
+          type: number
+      responses:
+        '201':
+          description: Question created.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/newid'
+      x-swagger-router-controller: Collections
+  '/collections/{collection_id}/primaryquestion':
+    post:
+      tags:
+        - collections
+      summary: 'Post Primary Question '
+      description: 'Post Primary Question '
+      operationId: postPrimaryQuestion
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+        - in: formData
+          name: question_id
+          required: false
+          type: number
+      responses:
+        '201':
+          description: Question made Primary.
+      x-swagger-router-controller: Collections
+    get:
+      tags:
+        - collections
+      summary: Current primary for collection.
+      description: Current primary for collection.
+      operationId: getCollectionUpdate
+      consumes: []
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/updated'
+      x-swagger-router-controller: Collections
+  '/collections/{collection_id}/swapsequence':
+    post:
+      tags:
+        - collections
+      summary: Swap sequence of 2 questions
+      description: CSwap sequence of 2 questions
+      operationId: swapQuestion
+      consumes: [multipart/form-data]
+      produces: []
+      parameters:
+        - name: collection_id
+          in: path
+          required: true
+          type: string
+        - in: formData
+          name: question_id1
+          required: true
+          type: number
+        - in: formData
+          name: question_id2
+          required: true
+          type: number
+      responses:
+        '201':
+          description: Questions.
+      x-swagger-router-controller: Collections
+  '/questions/{question_id}':
+    get:
+      tags:
+        - questions
+      summary: Get full question object by ID
+      description: Retrieves question by its question_id.
+      operationId: getQuestionFromID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/questions'
+      x-swagger-router-controller: Questions
+    put:
+      tags:
+        - questions
+      summary: Update a specific question
+      description: Update Question
+      operationId: putQuestion
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/questions'
+      responses:
+        '201':
+          description: Question updated.
+      x-swagger-router-controller: Questions
+    delete:
+      tags:
+        - questions
+      summary: Delete a question
+      description: Delete Question
+      operationId: delQuestion
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Question Deleted.
+      x-swagger-router-controller: Questions
+  '/questions/{question_id}/answers':
+    get:
+      tags:
+        - questions
+      summary: Retrieve answers for a given question
+      description: Retrieves question by its question_id.
+      operationId: getAnswerFromQuestionID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/question_answers'
+      x-swagger-router-controller: Questions
+    post:
+      tags:
+        - questions
+      summary: Create answer for given question
+      description: Post Answer
+      operationId: postAnswer
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/question_answers'
+      responses:
+        '201':
+          description: Answer created.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/newid'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      x-swagger-router-controller: Questions
+  '/questions/{question_id}/answers/{choice_id}':
+    get:
+      tags:
+        - questions
+      summary: Retrieve an answer for a question by its ID
+      description: Retrieves question by its question_id.
+      operationId: getAnswerbyID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - name: choice_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/question_answers'
+      x-swagger-router-controller: Questions
+    put:
+      tags:
+        - questions
+      summary: Update answer for a question by its ID
+      description: Update Answer
+      operationId: putAnswer
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - name: choice_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/question_answers'
+      responses:
+        '201':
+          description: Question updated.
+      x-swagger-router-controller: Questions
+    delete:
+      tags:
+        - questions
+      summary: Delete a choice
+      description: Delete Answer
+      operationId: delAnswer
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - name: choice_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '201':
+          description: Answer Deleted.
+      x-swagger-router-controller: Questions
+  '/questions/{question_id}/layouts':
+    get:
+      tags:
+        - questions
+      summary: Retrieves layouts attached to a question.
+      description: Retrieves question by its question_id.
+      operationId: getLayouts
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/question_layouts'
+      x-swagger-router-controller: Questions
+    post:
+      tags:
+        - questions
+      summary: Creates a new layout for a question
+      description: Post Layout
+      operationId: postLayout
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/question_layouts'
+      responses:
+        '201':
+          description: Layout created.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/newid'
+      x-swagger-router-controller: Questions
+  '/questions/{question_id}/layouts/{layout_id}':
+    get:
+      tags:
+        - questions
+      summary: Retrieves layout by question and ID.
+      description: Retrieves question by its question_id.
+      operationId: getLayoutByID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - name: layout_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/question_layouts'
+      x-swagger-router-controller: Questions
+    put:
+      tags:
+        - questions
+      summary: Update a specific layout.
+      description: Update Layout
+      operationId: putLayout
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - name: layout_id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/question_layouts'
+      responses:
+        '201':
+          description: Layout updated.
+      x-swagger-router-controller: Questions
+    delete:
+      tags:
+        - questions
+      summary: Delete a layout
+      description: Delete Layout
+      operationId: delLayout
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+        - name: layout_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Layout Deleted.
+      x-swagger-router-controller: Questions
+  '/responses/self/{question_id}':
+    get:
+      tags:
+        - responses
+      summary: Retrieves answer for current question/session.
+      description: Retrieves answer for current question/session.
+      operationId: getCurrentSelfResponse
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/responseSelf'
+        '204':
+          description: No Data
+      x-swagger-router-controller: Responses
+    post:
+      tags:
+        - responses
+      summary: User response to a question
+      description: Respond to a Question
+      operationId: postSelfResponse
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: number
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/responseSelf'
+      responses:
+        '201':
+          description: Question answered.
+      x-swagger-router-controller: Responses
+  '/responses/{question_id}':
+    get:
+      tags:
+        - responses
+      summary: Retrieves full response set for a question by question_id.
+      description: Retrieves answer set for a question by question_id.
+      operationId: getResponseSetForID
+      consumes: []
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/responseSet'
+        '204':
+          description: No Data
+      x-swagger-router-controller: Responses
+  '/responseanalysis/{question_id}':
+    get:
+      tags:
+        - responses
+      summary: Retrieves full analysis set for a question by question_id.
+      description: Retrieves analysis set for a question by question_id.
+      operationId: getAnalysisSetForID
+      consumes: []
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/analysisSet'
+        '204':
+          description: No Data
+      x-swagger-router-controller: Responses
+  '/responsedoanalysis/{question_id}':
+    get:
+      tags:
+        - responses
+      summary: Executes analysis set for a question by question_id.
+      description: Retrieves analysis set for a question by question_id.
+      operationId: doAnalysisSetForID
+      consumes: []
+      produces: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: No Data
+      x-swagger-router-controller: Responses
+  '/notes/{object_attach}/{id_attach}':
+    get:
+      tags:
+        - notes
+      summary: Retrieves notes for an object.
+      description: Retrieves notes for an object.
+      operationId: getNotes
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: object_attach
+          in: path
+          required: true
+          type: string
+        - name: id_attach
+          in: path
+          required: true
+          type: number
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/notes'
+      x-swagger-router-controller: Notes
+    post:
+      tags:
+        - notes
+      summary: Post a new note
+      description: Post note
+      operationId: postNote
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: object_attach
+          in: path
+          required: true
+          type: string
+        - name: id_attach
+          in: path
+          required: true
+          type: number
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/notes'
+      responses:
+        '201':
+          description: Note created.
+      x-swagger-router-controller: Notes
+  '/notes/{note_id}':
+    get:
+      tags:
+        - notes
+      summary: Retrieves a note by its note_id.
+      description: Retrieves question by its question_id.
+      operationId: getNoteByID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: note_id
+          in: path
+          required: true
+          type: number
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/notes'
+      x-swagger-router-controller: Notes
+    put:
+      tags:
+        - notes
+      summary: Update a specific note
+      description: Update note
+      operationId: putnote
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: note_id
+          in: path
+          required: true
+          type: number
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/notes'
+      responses:
+        '201':
+          description: Note updated.
+      x-swagger-router-controller: Notes
+  '/tags/{object_attach}/{id_attach}':
+    get:
+      tags:
+        - tags
+      summary: Retrieves tags for an object.
+      description: Retrieves tags for an object.
+      operationId: getTags
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: object_attach
+          in: path
+          required: true
+          type: string
+        - name: id_attach
+          in: path
+          required: true
+          type: number
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/tags'
+      x-swagger-router-controller: Tags
+    post:
+      tags:
+        - tags
+      summary: Create a new tag
+      description: Post tag
+      operationId: postTag
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: object_attach
+          in: path
+          required: true
+          type: string
+        - name: id_attach
+          in: path
+          required: true
+          type: number
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/tags'
+      responses:
+        '201':
+          description: Note created.
+      x-swagger-router-controller: Tags
+  '/tags/{tag_id}':
+    get:
+      tags:
+        - tags
+      summary: Retrieves a tag by its tag_id.
+      description: Retrieves question by its question_id.
+      operationId: getTagByID
+      consumes: []
+      produces:
+        - application/json
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          type: number
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/tags'
+      x-swagger-router-controller: Tags
+    put:
+      tags:
+        - tags
+      summary: Update a specific tag
+      description: Update tag
+      operationId: putTag
+      consumes:
+        - application/json
+      produces: []
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          type: number
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/tags'
+      responses:
+        '201':
+          description: Note updated.
+      x-swagger-router-controller: Tags
+  /stats:
+    get:
+      tags:
+        - stats
+      summary: System stats
+      description: Get server stats
+      operationId: getStats
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/stats'
+      x-swagger-router-controller: Stats
+  /stats/questions:
+    get:
+      tags:
+        - stats
+      summary: System stats
+      description: Get server stats
+      operationId: getQStats
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/stats'
+      x-swagger-router-controller: Stats
+  /stats/updates:
+    get:
+      tags:
+        - stats
+      summary: System stats
+      description: Get server stats
+      operationId: getUStats
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/stats'
+      x-swagger-router-controller: Stats
+  '/stats/questions/{question_id}/views':
+    get:
+      tags:
+        - stats
+      summary: System stats
+      description: Get server stats
+      operationId: getQvStats
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/stats'
+      x-swagger-router-controller: Stats
+definitions:
+  tags:
+    type: object
+    properties:
+      tag_name:
+        type: string
+      object_attach:
+        type: string
+      id_atttach:
+        type: number
+      collection_id:
+        type: number
+  notes:
+    type: object
+    properties:
+      created_by:
+        type: string
+      content:
+        type: string
+      created_on:
+        type: string
+      object_attach:
+        type: string
+      id_attach:
+        type: number
+  question_layouts:
+    type: object
+    properties:
+      layout_label:
+        type: string
+      layout_style:
+        type: string
+      layout_context:
+        type: string
+      layout_id:
+        type: number
+  collections:
+    type: object
+    properties:
+      created_by:
+        type: number
+      updated_by:
+        type: number
+      description:
+        type: string
+      sequence:
+        type: number
+      created_on:
+        type: string
+      updated_on:
+        type: string
+      collection_name:
+        type: string
+      master_id:
+        type: number
+      notes:
+        type: array
+        items:
+          $ref: '#/definitions/notes'
+      collection_id:
+        type: number
+      is_test:
+        type: number
+      collection_type:
+        type: number
+  question_answers:
+    type: object
+    properties:
+      choice_value:
+        type: number
+      choice_label:
+        type: string
+      choice_id:
+        type: number
+      sequence:
+        type: number
+  responseSet_Responses:
+    type: object
+    properties:
+      choice_count:
+        type: number
+      choice_label:
+        type: string
+      choice_id:
+        type: number
+      choice_sum:
+        type: number
+  question_triggers:
+    type: object
+    properties:
+      trigger_action:
+        type: string
+      trigger_pattern:
+        type: string
+      trigger_label:
+        type: string
+      trigger_id:
+        type: string
+  responseSet:
+    type: object
+    required:
+      - question_id
+      - response_count
+      - timestamp
+      - response_set
+    properties:
+      question_id:
+        type: number
+      response_count:
+        type: number
+      response_avg:
+        type: number
+      timestamp:
+        type: number
+      response_set:
+        type: array
+        items:
+          $ref: '#/definitions/responseSet_Responses'
+  responseSelf:
+    type: object
+    required:
+      - choice_id
+      - choice_value
+    properties:
+      response_useragent:
+        type: string
+      question_id:
+        type: number
+      choice_id:
+        type: number
+      choice_value:
+        type: number
+      user_id:
+        type: number
+      response_ip:
+        type: string
+      response_uuid:
+        type: string
+      response_guid:
+        type: string
+      response_on:
+        type: string
+      session_id:
+        type: string
+      response_lat:
+        type: number
+      response_lon:
+        type: number
+  responseSetContextData:
+    type: object
+    properties:
+      choice_count:
+        type: string
+      context_label:
+        type: string
+      choice_id:
+        type: string
+  responseSetContext:
+    type: object
+    properties:
+      context_id:
+        type: string
+      context_style:
+        type: string
+      context_data:
+        type: array
+        items:
+          $ref: '#/definitions/responseSetContextData'
+  analysisSet:
+    type: array
+    items:
+      $ref: '#/definitions/analysisItems'
+  analysisItems:
+    type: object
+    properties:
+      an_val:
+        type: number
+      an_ct:
+        type: number
+  questions:
+    type: object
+    properties:
+      created_by:
+        type: number
+      sequence:
+        type: number
+      created_on:
+        type: string
+      answers:
+        type: array
+        items:
+          $ref: '#/definitions/question_answers'
+      question_id:
+        type: number
+      question_type:
+        type: number
+      question_body:
+        type: string
+      triggers:
+        type: array
+        items:
+          $ref: '#/definitions/question_triggers'
+      layouts:
+        type: array
+        items:
+          $ref: '#/definitions/question_layouts'
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/tags'
+      collection_id:
+        type: number
+      is_test:
+        type: number
+      duration:
+        type: number
+  masters:
+    type: object
+    properties:
+      sequence:
+        type: number
+      master_name:
+        type: string
+      master_id:
+        type: number
+      description:
+        type: string
+      is_test:
+        type: number
+      created_by:
+        type: number
+      updated_by:
+        type: number
+  stats:
+    type: object
+    properties:
+      updates:
+        type: number
+      responses:
+        type: number
+      responses_flat:
+        type: number
+      sessions:
+        type: number
+      questions:
+        type: number
+      collections:
+        type: number
+      load:
+        type: number
+  newid:
+    type: object
+    properties:
+      newid:
+        type: number
+  updated:
+    type: object
+    properties:
+      newid:
+        type: number
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
